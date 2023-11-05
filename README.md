@@ -13,6 +13,16 @@ Export the repository (downloading is fine too).
 You need to have a setup that exports your GA4 properties to BigQuery on a daily basis (once a day).
 It is assumed that [the frequency of data export is set to daily](https://support.google.com/analytics/answer/9823238?sjid=1396493425660618586-AP#step3&zippy=%2Cこの記事の内容).
 
+### Creating Symlinks
+
+For environments other than `dev`, symlinks are utilized to apply common settings.
+
+```bash
+cd tf/shared
+chmod 755 ./mk_symlink.sh
+./mk_symlink.sh
+```
+
 ### Code Modification
 
 1. `tf/environment/dev/dev_main.tf`

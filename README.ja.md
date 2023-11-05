@@ -13,6 +13,16 @@ Cloud FunctionsはGA4のデータを日毎にエクスポートしたデータ�
 GA4のプロパティをBigQueryにエクスポートする設定が必要です。
 [データのエクスポート頻度を毎日（1日1回）](https://support.google.com/analytics/answer/9823238?sjid=1396493425660618586-AP#step3&zippy=%2Cこの記事の内容)に設定した前提です。
 
+### symlinkの作成
+
+dev以外の環境を作った場合に、共通した設定を利用するためにsymlinkを利用しています。
+
+```
+cd tf/shared
+chmod 755 ./mk_symlink.sh
+./mk_symlink.sh
+```
+
 ### コードの修正
 
 1. `tf/environment/dev/dev_main.tf`
