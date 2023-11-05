@@ -1,0 +1,48 @@
+name: Deploy to Google Cloud Functions (gcs)
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: 'Google auth'
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' 
+        service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' 
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Zip source code
+      run: |
+        cd src
+        zip -r ../default-code.zip *
+
+    - name: Upload source to Google Cloud Storage
+      run: gsutil cp default-code.zip gs://${{ secrets.GCS_BUCKET }}
+
+    - name: Deploy to Google Cloud Functions
+      run: |
+        gcloud functions deploy cfunction-default \
+          --region=asia-northeast1 \
+          --source=gs://${{ secrets.GCS_BUCKET }}/default-code.zip \
+          --runtime=python311 \
+          --trigger-event providers/cloud.pubsub/eventTypes/topic.publish \
+          --trigger-resource ${{ secrets.PUBSUB_TOPIC_ID }} \
+          --allow-unauthenticated \
+          --set-env-vars DATASET_ID=${{ secrets.DATASET_ID }}
